@@ -8,18 +8,15 @@ import (
 )
 
 type Environment struct {
-	Port string `env:"PORT"`
+	Port          string `env:"PORT"`
+	GitServiceUrl string `env:"GIT_SERVICE_URL"`
 }
 
 func GetEnvironment() *Environment {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	_ = godotenv.Load()
 
 	var environment Environment
-
-	_, err = goEnv.UnmarshalFromEnviron(&environment)
+	_, err := goEnv.UnmarshalFromEnviron(&environment)
 	if err != nil {
 		log.Fatal(err)
 	}
