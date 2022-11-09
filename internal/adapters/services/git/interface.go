@@ -1,7 +1,7 @@
 package git
 
 type Service interface {
-	GetRepositories(user string) (GetRepositoriesResponse, error)
+	GetRepositoriesAscOrder(urlService, user string) ([]GetRepositoriesResponse, error)
 }
 
 type GetCommitsRepositoryResponse struct {
@@ -18,8 +18,9 @@ type CommitsUser struct {
 }
 
 type GetRepositoriesResponse struct {
+	RepoId      int
 	RepoName    string
-	RepoId      string
+	RepoOwner   string
 	Description string
 	Forks       int
 	OpenIssues  int

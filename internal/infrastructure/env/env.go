@@ -8,7 +8,7 @@ import (
 )
 
 type Environment struct {
-	Port          string `env:"PORT"`
+	Port          int    `env:"PORT"`
 	GitServiceUrl string `env:"GIT_SERVICE_URL"`
 }
 

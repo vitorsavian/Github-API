@@ -9,7 +9,12 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"vitorsavian/github-api/internal/adapters/controllers"
+	"vitorsavian/github-api/internal/adapters/rest"
+	"vitorsavian/github-api/internal/adapters/services/git/github"
+	"vitorsavian/github-api/internal/infrastructure/env"
 
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
 
@@ -25,54 +30,26 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("server called")
-		// ctx := context.Background()
+		envs := env.GetEnvironment()
 
-		// exporter, err := prometheus.New()
-		// if err != nil {
-		// 	log.Println(err)
-		// 	return
-		// }
+		gitService := github.NewGitService()
+		gitController := controllers.NewGitController(gitService, envs)
 
-		// provider := metric.NewMeterProvider(metric.WithReader(exporter))
-		// meter := provider.Meter("github.com/open-telemetry/opentelemetry-go/example/prometheus")
+		apiHandler := rest.NewHandler(*gitController, envs.Port)
+		restApi, err := apiHandler.NewApi()
+		if err != nil {
+			errors.Wrap(err, "failed to initialize rest api")
+			return
+		}
 
-		// go serveMetrics()
-
-		// attrs := []attribute.KeyValue{
-		// 	attribute.Key("A").String("B"),
-		// 	attribute.Key("C").String("D"),
-		// 	attribute.Key("F").String("Y"),
-		// }
-
-		// // This is the equivalent of prometheus.NewCounterVec
-		// counter, err := meter.SyncFloat64().Counter("foo", instrument.WithDescription("a simple counter"))
-		// if err != nil {
-		// 	log.Fatal(err)
-		// }
-		// counter.Add(ctx, 5, attrs...)
-
-		// gauge, err := meter.SyncFloat64().UpDownCounter("bar", instrument.WithDescription("a fun little gauge"))
-		// if err != nil {
-		// 	log.Fatal(err)
-		// }
-		// gauge.Add(ctx, 100, attrs...)
-		// gauge.Add(ctx, -25, attrs...)
-
-		// // This is the equivalent of prometheus.NewHistogramVec
-		// histogram, err := meter.SyncFloat64().Histogram("baz", instrument.WithDescription("a very nice histogram"))
-		// if err != nil {
-		// 	log.Fatal(err)
-		// }
-		// histogram.Record(ctx, 23, attrs...)
-		// histogram.Record(ctx, 7, attrs...)
-		// histogram.Record(ctx, 101, attrs...)
-		// histogram.Record(ctx, 105, attrs...)
-
-		// ctx, _ = signal.NotifyContext(ctx, os.Interrupt)
-		// <-ctx.Done()
+		restErr := restApi.Run()
 
 		quit := notifyShutdown()
 		select {
+		case err := <-restErr:
+			errors.Wrap(err, "failed while running rest api")
+			log.Fatalln(err.Error())
+			return
 		case <-quit:
 			log.Println("gracefully shutdown")
 			return
