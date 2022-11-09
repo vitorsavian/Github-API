@@ -1,7 +1,6 @@
 package repositories
 
 import (
-	"fmt"
 	"vitorsavian/github-api/internal/adapters/services/git"
 	"vitorsavian/github-api/internal/domain/value"
 	"vitorsavian/github-api/internal/infrastructure/env"
@@ -28,16 +27,10 @@ func (r *Repositories) GetRepositories(input InputDto) (OutputDto, error) {
 		return OutputDto{}, ErrEmptyUserName
 	}
 
-	fmt.Println("input")
-	fmt.Println(input)
-
 	repoResponse, err := r.GitService.GetRepositoriesAscOrder(r.Env.GitServiceUrl, input.UserName)
 	if err != nil {
 		return OutputDto{}, err
 	}
-
-	fmt.Println("repo response")
-	fmt.Println(repoResponse)
 
 	if len(repoResponse) == 0 {
 		return OutputDto{
@@ -60,9 +53,6 @@ func (r *Repositories) GetRepositories(input InputDto) (OutputDto, error) {
 		}
 		output.Data[index] = outputItem
 	}
-
-	fmt.Println("repo response")
-	fmt.Println(output)
 
 	return output, nil
 }

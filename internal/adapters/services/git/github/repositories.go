@@ -17,34 +17,32 @@ func (g *GitService) GetRepositoriesAscOrder(urlService, user string) ([]git.Get
 
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
-		return []git.GetRepositoriesResponse{}, nil
+		return []git.GetRepositoriesResponse{}, err
 	}
 
-	req.Header.Set("Accept", "application/vnd")
+	req.Header.Set("Accept", "application/vnd.github+json")
 
 	res, err := g.httpClient.Do(req)
 	if err != nil {
-		return []git.GetRepositoriesResponse{}, nil
+		return []git.GetRepositoriesResponse{}, err
 	}
 
 	defer res.Body.Close()
 
-	var responseContract = []struct {
-		Data struct {
-			Id    int    `json:"id"`
-			Name  string `json:"name"`
-			Owner struct {
-				Login string `json:"login"`
-			}
-			Description string `json:"description"`
-			Forks       int    `json:"forks_count"`
-			OpenIssues  int    `json:"open_issues_count"`
-		}
-	}{}
+	var responseContract []struct {
+		Id    int    `json:"id"`
+		Name  string `json:"name"`
+		Owner struct {
+			Login string `json:"login"`
+		} `json:"owner"`
+		Description string `json:"description"`
+		Forks       int    `json:"forks_count"`
+		OpenIssues  int    `json:"open_issues_count"`
+	}
 
-	var errorResponseContract = struct {
+	var errorResponseContract struct {
 		Message string `json:"message"`
-	}{}
+	}
 
 	if res.StatusCode != http.StatusOK {
 		if err = json.NewDecoder(res.Body).Decode(&errorResponseContract); err != nil {
@@ -65,12 +63,12 @@ func (g *GitService) GetRepositoriesAscOrder(urlService, user string) ([]git.Get
 
 	for _, value := range responseContract {
 		repoResponse = append(repoResponse, git.GetRepositoriesResponse{
-			RepoId:      value.Data.Id,
-			RepoName:    value.Data.Name,
-			RepoOwner:   value.Data.Owner.Login,
-			Description: value.Data.Description,
-			Forks:       value.Data.Forks,
-			OpenIssues:  value.Data.OpenIssues,
+			RepoId:      value.Id,
+			RepoName:    value.Name,
+			RepoOwner:   value.Owner.Login,
+			Description: value.Description,
+			Forks:       value.Forks,
+			OpenIssues:  value.OpenIssues,
 		})
 	}
 

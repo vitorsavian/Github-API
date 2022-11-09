@@ -33,7 +33,12 @@ func (g *GitController) GetRepositoriesController(c *gin.Context) {
 
 	resp, err := useCase.GetRepositories(inputDto)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.JSON(http.StatusBadRequest, struct {
+			Message string `json:"message"`
+		}{
+			Message: err.Error(),
+		})
+		return
 	}
 
 	c.JSON(http.StatusOK, resp)
