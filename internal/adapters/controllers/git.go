@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"vitorsavian/github-api/internal/adapters/services/git"
 	"vitorsavian/github-api/internal/infrastructure/env"
+	"vitorsavian/github-api/internal/usecases/commits"
 	"vitorsavian/github-api/internal/usecases/repositories"
 
 	"github.com/gin-gonic/gin"
@@ -45,5 +46,23 @@ func (g *GitController) GetRepositoriesController(c *gin.Context) {
 }
 
 func (g *GitController) GetCommitsController(c *gin.Context) {
-	return
+	log.Println("GetCommitsController Called")
+
+	inputDto := commits.InputDto{
+		UserName: c.Param("username"),
+	}
+
+	useCase := commits.New(g.GitService, *g.Env)
+
+	resp, err := useCase.GetCommits(inputDto)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, struct {
+			Message string `json:"message"`
+		}{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, resp)
 }

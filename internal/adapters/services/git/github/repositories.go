@@ -74,3 +74,66 @@ func (g *GitService) GetRepositoriesAscOrder(urlService, user string) ([]git.Get
 
 	return repoResponse, nil
 }
+
+func (g *GitService) GetRecentRepositoriesPushed(urlService, user string) ([]git.GetRepositoriesResponse, error) {
+	url := fmt.Sprintf("%s/users/%s/repos?sort=pushed&type=all&per_page=5", urlService, user)
+
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return []git.GetRepositoriesResponse{}, err
+	}
+
+	req.Header.Set("Accept", "application/vnd.github+json")
+
+	res, err := g.httpClient.Do(req)
+	if err != nil {
+		return []git.GetRepositoriesResponse{}, err
+	}
+
+	defer res.Body.Close()
+
+	var responseContract []struct {
+		Id    int    `json:"id"`
+		Name  string `json:"name"`
+		Owner struct {
+			Login string `json:"login"`
+		} `json:"owner"`
+		Description string `json:"description"`
+		Forks       int    `json:"forks_count"`
+		OpenIssues  int    `json:"open_issues_count"`
+	}
+
+	var errorResponseContract struct {
+		Message string `json:"message"`
+	}
+
+	if res.StatusCode != http.StatusOK {
+		if err = json.NewDecoder(res.Body).Decode(&errorResponseContract); err != nil {
+			return []git.GetRepositoriesResponse{}, err
+		}
+		return []git.GetRepositoriesResponse{}, errors.New(errorResponseContract.Message)
+	}
+
+	if err = json.NewDecoder(res.Body).Decode(&responseContract); err != nil {
+		return []git.GetRepositoriesResponse{}, err
+	}
+
+	if len(responseContract) == 0 {
+		return []git.GetRepositoriesResponse{}, nil
+	}
+
+	var repoResponse []git.GetRepositoriesResponse
+
+	for _, value := range responseContract {
+		repoResponse = append(repoResponse, git.GetRepositoriesResponse{
+			RepoId:      value.Id,
+			RepoName:    value.Name,
+			RepoOwner:   value.Owner.Login,
+			Description: value.Description,
+			Forks:       value.Forks,
+			OpenIssues:  value.OpenIssues,
+		})
+	}
+
+	return repoResponse, nil
+}
