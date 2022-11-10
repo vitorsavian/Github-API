@@ -24,4 +24,4 @@ WORKDIR /app
 
 RUN apk update
 
-COPY --from=builder &GOPATH/src/github.com/vitorsavian/github-api .
+COPY --from=builder $GOPATH/src/github.com/vitorsavian/github-api .
