@@ -3,20 +3,22 @@ package rest
 import (
 	"context"
 	"fmt"
+	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwag "github.com/swaggo/gin-swagger"
 	"log"
 	"net/http"
 	"sync"
 	"time"
+	"vitorsavian/github-api/docs"
 	"vitorsavian/github-api/internal/adapters/controllers"
 	"vitorsavian/github-api/internal/adapters/rest/health"
-
-	"github.com/gin-gonic/gin"
-	"github.com/pkg/errors"
 
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 )
 
-type api struct {
+type Api struct {
 	server *http.Server
 	port   int
 }
@@ -33,14 +35,21 @@ func NewHandler(gitController controllers.GitController, port int) Handler {
 	}
 }
 
-func (h *Handler) NewApi() (*api, error) {
-	gin.SetMode(gin.ReleaseMode)
-
+func (h *Handler) NewApi() (*Api, error) {
 	router := gin.New()
 	router.Use(gin.Recovery())
 	router.Use(otelgin.Middleware("git-api"))
 
 	base := router.Group("/git-api")
+
+	docs.SwaggerInfo.BasePath = "/git-api"
+	docs.SwaggerInfo.Title = "Git api"
+	docs.SwaggerInfo.Description = "This is the git api documentation"
+	docs.SwaggerInfo.Version = "1.0"
+	fmt.Println(docs.SwaggerInfo.Host)
+
+	fmt.Println(router.BasePath())
+	base.GET("/documentation/*any", ginSwag.WrapHandler(swaggerFiles.Handler))
 	base.GET("/health-check", health.HealthCheck)
 
 	v1 := base.Group("/v1")
@@ -53,13 +62,13 @@ func (h *Handler) NewApi() (*api, error) {
 
 	server := &http.Server{Addr: fmt.Sprintf(":%d", h.Port), Handler: router}
 
-	return &api{
+	return &Api{
 		server: server,
 		port:   h.Port,
 	}, nil
 }
 
-func (a *api) Run() <-chan error {
+func (a *Api) Run() <-chan error {
 	out := make(chan error)
 	go func() {
 		fmt.Printf("Server listening on port %d\n", a.port)
@@ -71,7 +80,7 @@ func (a *api) Run() <-chan error {
 	return out
 }
 
-func (a *api) Shutdown() {
+func (a *Api) Shutdown() {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	var wg sync.WaitGroup

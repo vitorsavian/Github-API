@@ -1,0 +1,23 @@
+info:
+  contact: {}
+paths:
+  /v1/repos/{username}:
+    get:
+      consumes:
+      - application/json
+      description: Route to get all repos in alphabetical order
+      parameters:
+      - description: username from the user
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Get Repos
+      tags:
+      - Repo
+swagger: "2.0"
