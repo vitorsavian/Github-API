@@ -12,7 +12,7 @@ receivers:
 
 exporters:
   prometheus:
-    endpoint: "localhost:8889"
+    endpoint: "0.0.0.0:8889"
 
   jaeger:
     endpoint: "jaeger:14250"
