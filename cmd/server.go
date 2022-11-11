@@ -4,6 +4,7 @@ Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -13,6 +14,7 @@ import (
 	"vitorsavian/github-api/internal/adapters/rest"
 	"vitorsavian/github-api/internal/adapters/services/git/github"
 	"vitorsavian/github-api/internal/infrastructure/env"
+	"vitorsavian/github-api/internal/infrastructure/tracing"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -31,6 +33,15 @@ to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Server called")
 		envs := env.GetEnvironment()
+		ctx := context.Background()
+
+		shutdown, err := tracing.InitProviderExporter(ctx, *envs)
+		if err != nil {
+			log.Fatalf("%s: %v", "failed to initialize opentelemetry provider", err)
+			return
+		}
+
+		defer shutdown(ctx)
 
 		gitService := github.NewGitService()
 		gitController := controllers.NewGitController(gitService, envs)

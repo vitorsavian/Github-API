@@ -9,6 +9,9 @@ import (
 
 type Environment struct {
 	Port          int    `env:"PORT"`
+	AppEnv        string `env:"ENVIRONMENT"`
+	CollectorUrl  string `env:"COLLECTOR_URL"`
+	ServiceName   string `env:"SERVICE_NAME"`
 	GitServiceUrl string `env:"GIT_SERVICE_URL"`
 }
 

@@ -10,10 +10,6 @@ RUN apk update && apk upgrade && apk add curl git && apk add gcc libc-dev
 
 RUN go build -ldflags '-linkmode=external'
 
-#RUN go get -u github.com/swaggo/swag/cmg/swag
-#
-#RUN swag init
-
 #########################################################################
 
 FROM alpine:3.15
