@@ -12,6 +12,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
+
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 )
 
 type api struct {
@@ -36,6 +38,7 @@ func (h *Handler) NewApi() (*api, error) {
 
 	router := gin.New()
 	router.Use(gin.Recovery())
+	router.Use(otelgin.Middleware("git-api"))
 
 	base := router.Group("/git-api")
 	base.GET("/health-check", health.HealthCheck)

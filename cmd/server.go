@@ -18,82 +18,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-//func initTracer() func() {
-//	jeagerEndpoint := os.Getenv("JAEGER_ENDPOINT")
-//
-//	if jeagerEndpoint == "" {
-//		jeagerEndpoint = "http://127.0.0.1:14268/api/traces"
-//	}
-//
-//	// Create and install Jaeger export pipeline.
-//	flush, err := jaeger.InstallNewPipeline(
-//		jaeger.WithCollectorEndpoint(jeagerEndpoint),
-//		jaeger.WithProcess(jaeger.Process{
-//			ServiceName: serviceName,
-//			Tags: []attribute.KeyValue{
-//				attribute.String("exporter", "jaeger"),
-//			},
-//		}),
-//		jaeger.WithSDK(&sdktrace.Config{DefaultSampler: sdktrace.AlwaysSample()}),
-//	)
-//	if err != nil {
-//		level.Error(logger).Log(
-//			"msg", "cannot create tracer",
-//			"err", err)
-//		os.Exit(1)
-//	}
-//
-//	otel.SetTextMapPropagator(
-//		propagation.NewCompositeTextMapPropagator(
-//			propagation.TraceContext{},
-//			propagation.Baggage{}))
-//
-//	return flush
-//}
-//
-//func initMeter() *prometheus.Exporter {
-//	exporter, err := prometheus.InstallNewPipeline(prometheus.Config{})
-//	if err != nil {
-//		level.Error(logger).Log(
-//			"msg", "failed to initialize Prometheus exporter",
-//			"err", err)
-//		os.Exit(1)
-//	}
-//
-//	meter := global.Meter(meterName)
-//
-//	ctx := context.Background()
-//
-//	// Init the metrics
-//	reqCounter = metric.Must(meter).NewFloat64Counter(
-//		"http_requests_total",
-//		metric.WithDescription("Total number of requests"))
-//	reqCounter.Add(ctx, float64(0), commonLabels...)
-//
-//	errCounter = metric.Must(meter).NewFloat64Counter(
-//		"http_errors_total",
-//		metric.WithDescription("Total number of errors"))
-//	errCounter.Add(ctx, float64(0), commonLabels...)
-//
-//	// Start collecting runtime metrics
-//	if err = runtime.Start(); err != nil {
-//		level.Error(logger).Log(
-//			"msg", "failed to initialize runtime metrics collection",
-//			"err", err)
-//		os.Exit(1)
-//	}
-//
-//	// Start collecting host metrics
-//	if err = host.Start(); err != nil {
-//		level.Error(logger).Log(
-//			"msg", "failed to initialize host metrics collection",
-//			"err", err)
-//		os.Exit(1)
-//	}
-//
-//	return exporter
-//}
-
 // serverCmd represents the server command
 var serverCmd = &cobra.Command{
 	Use:   "server",
@@ -152,13 +76,3 @@ func notifyShutdown() chan os.Signal {
 	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
 	return quit
 }
-
-// func serveMetrics() {
-// 	log.Printf("serving metrics at localhost:2223/metrics")
-// 	http.Handle("/metrics", promhttp.Handler())
-// 	err := http.ListenAndServe(":2223", nil)
-// 	if err != nil {
-// 		fmt.Printf("error serving http: %v", err)
-// 		return
-// 	}
-// }
