@@ -1,4 +1,4 @@
-FROM golang:1.19.2-alpine3.13 AS builder
+FROM golang:1.19.3-alpine3.15 AS builder
 
 ENV GOPATH="$HOME/go"
 
@@ -10,13 +10,13 @@ RUN apk update && apk upgrade && apk add curl git && apk add gcc libc-dev
 
 RUN go build -ldflags '-linkmode=external'
 
-RUN go get -u github.com/swaggo/swag/cmg/swag
-
-RUN swag init
+#RUN go get -u github.com/swaggo/swag/cmg/swag
+#
+#RUN swag init
 
 #########################################################################
 
-FROM alpine:3.13
+FROM alpine:3.15
 
 ENV GOPATH="$HOME/go"
 

@@ -16,6 +16,7 @@ import (
 
 type api struct {
 	server *http.Server
+	port   int
 }
 
 type Handler struct {
@@ -51,13 +52,14 @@ func (h *Handler) NewApi() (*api, error) {
 
 	return &api{
 		server: server,
+		port:   h.Port,
 	}, nil
 }
 
 func (a *api) Run() <-chan error {
 	out := make(chan error)
 	go func() {
-		fmt.Println("Server listening on port 3000")
+		fmt.Printf("Server listening on port %d\n", a.port)
 		if err := a.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Println(err)
 			out <- errors.Wrap(err, "failed to listen and serve api")
