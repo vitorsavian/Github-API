@@ -46,9 +46,6 @@ func (h *Handler) NewApi() (*Api, error) {
 	docs.SwaggerInfo.Title = "Git api"
 	docs.SwaggerInfo.Description = "This is the git api documentation"
 	docs.SwaggerInfo.Version = "1.0"
-	fmt.Println(docs.SwaggerInfo.Host)
-
-	fmt.Println(router.BasePath())
 	base.GET("/documentation/*any", ginSwag.WrapHandler(swaggerFiles.Handler))
 	base.GET("/health-check", health.HealthCheck)
 

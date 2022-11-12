@@ -16,6 +16,35 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/v1/commits/{username}": {
+            "get": {
+                "description": "Route to get all repos in alphabetical order",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Repo"
+                ],
+                "summary": "Get Repos",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "username from the user",
+                        "name": "username",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/v1/repos/{username}": {
             "get": {
                 "description": "Route to get all repos in alphabetical order",

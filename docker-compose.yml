@@ -30,7 +30,6 @@ services:
       - "./otel-collector-config.yml:/etc/otelcol/otel-collector-config.yml"
     command: --config /etc/otelcol/otel-collector-config.yml
     ports:
-
       - "14278:14278"
     depends_on:
       - jaeger
