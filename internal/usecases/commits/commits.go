@@ -33,7 +33,11 @@ func (g *Commits) GetCommits(input InputDto) (OutputDto, error) {
 	}
 
 	if len(repoResponse) == 0 {
-		return OutputDto{}, nil
+		return OutputDto{
+			Data: RespData{
+				Projects: []ProjectInfo{},
+			},
+		}, nil
 	}
 
 	var commitResponses []git.GetCommitsRepositoryResponse
